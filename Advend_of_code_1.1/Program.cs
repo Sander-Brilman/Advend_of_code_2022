@@ -1,64 +1,61 @@
 ﻿using Advend_of_code_1._1.Puzzles;
+using System.Reflection.Metadata;
+using System.Security.Cryptography;
 
-int day;
-string puzzle, output = "De uitkomst is: ";
+int dayNumber;
+string puzzle, day, output = "De uitkomst is: ";
 
-
-while (true)
+bool runApp()
 {
+    Console.WriteLine("Selecteer een dag");
+    Console.WriteLine("type < om terug te gaan");
+    day = Console.ReadLine();
+
+    if (day == "<") return false;
+    if (!int.TryParse(day, out dayNumber)) return true;
+
+    StreamReader inputFile;
     try
     {
-        Console.WriteLine("Selecteer een dag");
-        day = int.Parse(Console.ReadLine());
-
-        StreamReader inputFile = new($"../../../Inputs/Day_{day}.txt");
-
-        do
-        {
-            Console.Clear();
-            Console.WriteLine("Selecteer een puzzel (1 of 2)");
-            Console.WriteLine("type < om terug te gaan");
-            puzzle = Console.ReadLine();
-
-            if (puzzle == "<") break;
-
-        } while (puzzle != "1" && puzzle != "2");
-
-        if (puzzle == "<") continue;
-
-        PuzzleSolution PuzzleSolver = day switch
-        {
-            1 => new Day_1(inputFile),
-            2 => new Day_2(inputFile),
-            _ => new Day_1(inputFile),
-        };
-
-        output += PuzzleSolver.ExecutePuzzle(int.Parse(puzzle));
-        Console.WriteLine(output);
-        Console.WriteLine("Nog een keer (y/n)");
-
-        if (Console.ReadLine() == "n") break;
-
-        Console.Clear();
+        inputFile = new($"../../../Inputs/Day_{dayNumber}.txt");
     }
     catch (Exception)
     {
         Console.Clear();
         Console.WriteLine("Deze dag is (nog) niet beschikbaar");
-        Console.WriteLine();
-        continue;
+        Console.WriteLine("Druk op enter om verder te gaan");
+        Console.ReadLine();
+        return true;
     }
 
+    do
+    {
+        Console.Clear();
+        Console.WriteLine($"dag {dayNumber}: Selecteer een puzzel (1 of 2)");
+        Console.WriteLine("type < om terug te gaan");
+        puzzle = Console.ReadLine();
 
+        if (puzzle == "<") return true;
+
+    } while (puzzle != "1" && puzzle != "2");
+
+    PuzzleSolution PuzzleSolver = dayNumber switch
+    {
+        1 => new Day_1(inputFile),
+        2 => new Day_2(inputFile),
+        _ => new Day_1(inputFile),
+    };
+
+    output = PuzzleSolver.ExecutePuzzle(int.Parse(puzzle));
+    Console.WriteLine(output);
+    Console.WriteLine("Nog een keer (y/n)");
+
+    if (Console.ReadLine() == "n") return false;
+
+    return true;
 }
 
-/*
-
-StreamReader st = new("../../../Inputs/Day_1(2).txt");
-
-var Solver = new Day_1(st);
-
-Console.WriteLine(Solver.Puzzle1());
-Console.ReadLine();
-
-*/
+do
+{
+    Console.Clear();
+} while (runApp());
