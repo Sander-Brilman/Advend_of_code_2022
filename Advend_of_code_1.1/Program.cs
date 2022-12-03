@@ -43,6 +43,7 @@ bool runApp()
     {
         1 => new Day_1(inputFile),
         2 => new Day_2(inputFile),
+        3 => new Day_3(inputFile),
         _ => new Day_1(inputFile),
     };
 
