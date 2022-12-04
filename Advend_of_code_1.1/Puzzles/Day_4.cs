@@ -72,16 +72,5 @@ namespace Advend_of_code_1._1.Puzzles
 
             return tasks;
         }
-
-        private static bool AreOverlapping(string elf1, string elf2)
-        {
-            (int elf1Min, int elf1Max) = GetTaskLimits(elf1);
-            (int elf2Min, int elf2Max) = GetTaskLimits(elf2);
-
-
-            return false;
-        }
-
-
     }
 }
