@@ -39,15 +39,25 @@ bool runApp()
 
     } while (puzzle != "1" && puzzle != "2");
 
-    PuzzleSolution PuzzleSolver = dayNumber switch
+    PuzzleSolution PuzzleSolver;
+    try
     {
-        1 => new Day_1(inputFile),
-        2 => new Day_2(inputFile),
-        3 => new Day_3(inputFile),
-        4 => new Day_4(inputFile),
-        5 => new Day_5(inputFile),
-        _ => new Day_1(inputFile),
-    };
+        PuzzleSolver = dayNumber switch
+        {
+            1 => new Day_1(inputFile),
+            2 => new Day_2(inputFile),
+            3 => new Day_3(inputFile),
+            4 => new Day_4(inputFile),
+            5 => new Day_5(inputFile),
+            6 => new Day_6(inputFile),
+            _ => throw new NotImplementedException(),
+        };
+    } 
+    catch (NotImplementedException)
+    {
+        return true;
+    }
+
 
     output = PuzzleSolver.ExecutePuzzle(int.Parse(puzzle));
     Console.WriteLine(output);
