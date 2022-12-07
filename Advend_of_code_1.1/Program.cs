@@ -50,6 +50,7 @@ bool runApp()
             4 => new Day_4(inputFile),
             5 => new Day_5(inputFile),
             6 => new Day_6(inputFile),
+            7 => new Day_7(inputFile),
             _ => throw new NotImplementedException(),
         };
     } 
