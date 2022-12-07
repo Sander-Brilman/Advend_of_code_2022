@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Advend_of_code_1.1/Inputs/Day_7.txt
+/Advend_of_code_1.1/Puzzles/Day_7.cs
