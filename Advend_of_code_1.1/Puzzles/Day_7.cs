@@ -109,7 +109,7 @@ namespace Advend_of_code_1._1.Puzzles
         }
 
         /// <summary>
-        /// Gets the total size of the directory only counting the files.
+        /// Gets the total size of the directory counting the files and child dirs.
         /// Saves the directories with a size within the limits to the _dirsInRange propperty
         /// 
         /// Uses recursion to map underlying dirs
