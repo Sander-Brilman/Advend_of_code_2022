@@ -11,62 +11,135 @@ namespace Advend_of_code_1._1.Puzzles
     {
         public Day_7(StreamReader file) : base(file) { }
 
-        private ArrayList _root = new();
-        private List<int> _path = new();
+        private Dictionary<string, object> _root = new();
+        private List<string> _path = new();
+
+        private List<int> _dirsInRange = new();
 
         public override string Puzzle1()
         {
-            string line;
-            bool isListing = false;
-            ArrayList currentDir = 
-            while ((line = InputFile.ReadLine()) != null)
-            {
-                if (isListing)
-                {
-
-                }
-            }
+            ParseInput();
+            MapDirSizes(_root, 0, 100000);
+            return _dirsInRange.Sum().ToString();
         }
 
         public override string Puzzle2()
         {
-            return base.Puzzle2();
+            ParseInput();
+            MapDirSizes(_root, 0, null);
+            int takenSize = _dirsInRange.Max();
+            int maxSize = 70000000;
+            int availableSize = maxSize - takenSize;
+            int minClearSize = 30000000 - availableSize;
+
+            _dirsInRange.Clear();
+            MapDirSizes(_root, minClearSize, null);
+
+
+            return _dirsInRange.Min().ToString();
         }
 
-        private ArrayList GetDirFromPath()
+        private void ParseInput()
         {
-            ArrayList dir = _root;
-
-            if (_path.Count > 0)
+            string line;
+            Dictionary<string, object> currentDir = _root;
+            while ((line = InputFile.ReadLine()) != null)
             {
-                foreach (int pathIndex in _path)
+                // execute commands
+                if (line.StartsWith('$'))
                 {
-                    var item = dir[pathIndex];
+                    string command = line[2..];
 
-                    if (item.GetType() == typeof(ArrayList))
+                    if (command.StartsWith("cd"))
                     {
-                        dir = (ArrayList)item;
+                        currentDir = MoveToDir(command[3..]);
                     }
+
+                    continue;
+                }
+
+
+                // save the listed files in the file system
+                if (line.StartsWith("dir"))
+                {
+                    string dirName = line[4..];
+                    currentDir.Add(dirName, new Dictionary<string, object>());
+                }
+                else
+                {
+                    string[] fileInfo = line.Split(' ');
+                    currentDir.Add(fileInfo[1], int.Parse(fileInfo[0]));
+                }
+
+            }
+        }
+
+        private Dictionary<string, object> GetDirFromPath(List<string> path)
+        {
+            if (path.Count == 0) { return _root; }
+
+            Dictionary<string, object> layer = (Dictionary<string, object>)_root[path[0]];
+
+            if (path.Count == 1) { return layer; }
+
+            for (int i = 1; i < path.Count; i++)
+            {
+
+                layer = (Dictionary<string, object>)layer[path[i]];
+            }
+
+            return layer;
+        }
+
+        private Dictionary<string, object> MoveToDir(string dirName)
+        {
+            switch (dirName)
+            {
+                case "..":
+                    _path.RemoveAt(_path.Count - 1);
+                    break;
+                case "/":
+                    _path.Clear();
+                    break;
+                default:
+                    _path.Add(dirName);
+                    break;
+            }
+            return GetDirFromPath(_path);
+        }
+
+        /// <summary>
+        /// Gets the total size of the directory only counting the files.
+        /// Saves the directories with a size within the limits to the _dirsInRange propperty
+        /// 
+        /// Uses recursion to map underlying dirs
+        /// </summary>
+        /// <param name="path">The path of the directory</param>
+        /// <returns>The total size</returns>
+        private int MapDirSizes(Dictionary<string, object> startDir, int minSize, int? maxSize)
+        {
+            int total = 0;
+
+            foreach (KeyValuePair<string, object> dirItem in startDir)
+            {
+                if (dirItem.Value.GetType() == typeof(int))
+                {
+                    total += (int)dirItem.Value;
+                    continue;
+                }
+                if (dirItem.Value.GetType() == typeof(Dictionary<string, object>))
+                {
+                    total += MapDirSizes((Dictionary<string, object>)startDir[dirItem.Key], minSize, maxSize);
+                    continue;
                 }
             }
 
-            return dir;
-        }
-
-        private ArrayList MoveToDir(string dirName)
-        {
-            if (dirName == "..")
+            if (total > minSize && (maxSize == null || total < maxSize))
             {
-                _path.RemoveAt(_path.Count - 1);
-                return GetDirFromPath();
+                _dirsInRange.Add(total);
             }
 
-            ArrayList currentDir = GetDirFromPath();
-            int index = currentDir.IndexOf(dirName);
-            _path.Add(index);
-            currentDir = (ArrayList)currentDir[index];
-
-            return currentDir;
+            return total;
         }
     }
 }
