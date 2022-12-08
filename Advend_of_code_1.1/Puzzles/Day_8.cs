@@ -24,6 +24,11 @@ namespace Advend_of_code_1._1.Puzzles
             {
                 for (int columnIndex = 0; columnIndex <= _columnLength; columnIndex++)
                 {
+                    if (rowIndex == 5)
+                    {
+                        Console.WriteLine();
+                    }
+
                     if (!IsVisible(rowIndex, columnIndex))
                     {
                         continue;
@@ -37,7 +42,23 @@ namespace Advend_of_code_1._1.Puzzles
 
         public override string Puzzle2()
         {
-            return base.Puzzle1();
+            MapTrees();
+
+            int biggest = 0;
+
+            for (int rowIndex = 0; rowIndex <= _rowLength; rowIndex++)
+            {
+                for (int columnIndex = 0; columnIndex <= _columnLength; columnIndex++)
+                {
+                    int score = GetScenicScore(rowIndex, columnIndex);
+                    if (score > biggest)
+                    {
+                        biggest = score;
+                    }
+                }
+            }
+
+            return biggest.ToString();
         }
 
         private void MapTrees()
@@ -74,74 +95,99 @@ namespace Advend_of_code_1._1.Puzzles
             return isVisible;
         }
 
+        /// <summary>
+        /// Generates lists of trees between the current tree and the edge.
+        /// 
+        /// list of trees follows the order of current tree to the edge
+        /// </summary>
+        /// <param name="row">Row coordinates of the current tree</param>
+        /// <param name="column">Column coordinates of the current tree</param>
+        /// <returns>The trees for every direction. (left, right, top, bottom)</returns>
+        private (List<int> left, List<int> right, List<int> top, List<int> bottom) GetTreesFromDirections(int row, int column)
+        {
+            List<int> left = new(),
+                    right = new(),
+                    top = new(),
+                    bottom =  new();
+
+            // left
+            for (int columnIndex = column - 1; columnIndex >= 0; columnIndex--)
+                left.Add(GetTree(row, columnIndex));
+
+            // right
+            for (int columnIndex = column + 1; columnIndex <= _columnLength; columnIndex++)
+                right.Add(GetTree(row, columnIndex));
+
+            // top
+            for (int rowIndex = row - 1; rowIndex >= 0; rowIndex--)
+                top.Add(GetTree(rowIndex, column));
+
+            // bottom
+            for (int rowIndex = row + 1; rowIndex <= _rowLength; rowIndex++)
+                bottom.Add(GetTree(rowIndex, column));
+
+            return (left, right, top, bottom);
+        }
+
         private bool IsVisible(int row, int column)
         {
-            if (IsOnEdge(row, column))
-            {
-                return false;
-            }
+            if (IsOnEdge(row, column)) { return true; }
 
             byte currentTree = GetTree(row, column);
             byte visibleSides = 4;
 
-            //
-            // left
-            //
-            for (int rowIndex = 0; rowIndex < row; rowIndex++)
-            {
-                byte tree = GetTree(rowIndex, column);
-                if (tree >= currentTree)
-                {
-                    visibleSides--;
-                    break;
-                }
-            }
+            (List<int> left, List<int> right, List<int> top, List<int> bottom) = GetTreesFromDirections(row, column);
 
-            if (row == 2 && column == 1)
-            {
-                Console.WriteLine();
-            }
-
-            //
-            // right
-            //
-            for (int rowIndex = row + 1; rowIndex <= _rowLength; rowIndex++)
-            {
-                byte tree = GetTree(rowIndex, column);
-                if (tree >= currentTree)
-                {
-                    visibleSides--;
-                    break;
-                }
-            }
-
-            //
-            // top
-            //
-            for (int columnIndex = 0; columnIndex < row; columnIndex++)
-            {
-                byte tree = GetTree(row, columnIndex);
-                if (tree >= currentTree)
-                {
-                    visibleSides--;
-                    break;
-                }
-            }
-
-            //
-            // bottom
-            //
-            for (int columnIndex = column; columnIndex <= _columnLength; columnIndex++)
-            {
-                byte tree = GetTree(row, columnIndex);
-                if (tree >= currentTree)
-                {
-                    visibleSides--;
-                    break;
-                }
-            }
+            if (left.Max() >= currentTree) { visibleSides--; }
+            if (right.Max() >= currentTree) { visibleSides--; }
+            if (top.Max() >= currentTree) { visibleSides--; }
+            if (bottom.Max() >= currentTree) { visibleSides--; }
 
             return visibleSides > 0;
         }
-    }
+
+        private int GetScenicScore(int row, int column)
+        {
+            if (IsOnEdge(row, column)) { return 0; }
+
+            int currentTree = GetTree(row, column);
+
+            (List<int> left, List<int> right, List<int> top, List<int> bottom) = GetTreesFromDirections(row, column);
+
+            int leftScore = 0,
+                rightScore = 0,
+                topScore = 0,
+                bottomScore = 0;
+
+            // left
+            foreach (int leftTree in left) 
+            {
+                leftScore++;
+                if (leftTree >= currentTree) { break; }
+            }
+
+            // right
+            foreach (int rightTree in right)
+            {
+                rightScore++;
+                if (rightTree >= currentTree) { break; }
+            }
+
+            // top
+            foreach (int topTree in top)
+            {
+                topScore++;
+                if (topTree >= currentTree) { break; }
+            }
+
+            // bottom
+            foreach (int bottomTree in bottom)
+            {
+                bottomScore++;
+                if (bottomTree >= currentTree) { break; }
+            }
+
+            return leftScore * rightScore * topScore * bottomScore;
+        }
+    } 
 }
