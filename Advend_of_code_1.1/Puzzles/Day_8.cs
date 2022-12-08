@@ -97,10 +97,15 @@ namespace Advend_of_code_1._1.Puzzles
                 }
             }
 
+            if (row == 2 && column == 1)
+            {
+                Console.WriteLine();
+            }
+
             //
             // right
             //
-            for (int rowIndex = row; rowIndex < _rowLength; rowIndex++)
+            for (int rowIndex = row + 1; rowIndex <= _rowLength; rowIndex++)
             {
                 byte tree = GetTree(rowIndex, column);
                 if (tree >= currentTree)
@@ -126,7 +131,7 @@ namespace Advend_of_code_1._1.Puzzles
             //
             // bottom
             //
-            for (int columnIndex = column; columnIndex < _columnLength; columnIndex++)
+            for (int columnIndex = column; columnIndex <= _columnLength; columnIndex++)
             {
                 byte tree = GetTree(row, columnIndex);
                 if (tree >= currentTree)
