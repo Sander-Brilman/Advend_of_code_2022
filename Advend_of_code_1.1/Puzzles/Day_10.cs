@@ -9,40 +9,30 @@ namespace Advend_of_code_1._1.Puzzles
 {
     internal class Day_10 : PuzzleSolution
     {
-        public Day_10(StreamReader file) : base(file) { }
+        public Day_10(StreamReader file) : base(file) { StoreCycleValues(); }
 
-        private Dictionary<int, int> _cycleValues = new();
+        private List<Dictionary<string, int>> _cycleValues = new();
         private List<string> _lines = new();
 
         public override string Puzzle1()
         {
-            StoreCycleValues();
-
             int total = 0;
             List<int> requestedCycles = new()
             {
-                19,
-                59,
-                99,
-                139,
-                179,
-                219,
+                20,
+                60,
+                100,
+                140,
+                180,
+                220,
             };
 
-            foreach (KeyValuePair<int, int> cycleValue in _cycleValues)
+            foreach (int cycle in requestedCycles)
             {
-                if (requestedCycles.Count == 0)
-                {
-                    break;
-                }
-
-                if (cycleValue.Key == requestedCycles.First())
-                {
-                    int value = (requestedCycles.First() + 1) * cycleValue.Value;
-                    Console.WriteLine($"{requestedCycles.First() + 1} * {cycleValue.Value} = {value}");
-                    total += value;
-                    requestedCycles.Remove(cycleValue.Key);
-                }
+                int cycleValue = _cycleValues[cycle - 1]["during"];
+                int value = cycle * cycleValue;
+                Console.WriteLine($"{cycle} * {cycleValue} = {value}");
+                total += value;
             }
 
             return total.ToString();
@@ -50,52 +40,47 @@ namespace Advend_of_code_1._1.Puzzles
 
         public override string Puzzle2() 
         {
-            for (int i = 0; i < 240; i++)
+            for (int pixels = 0; pixels < 240; pixels++)
             {
-                if (i % 40 == 0)
-                {
-                    Console.WriteLine();
-                }
+                if (pixels % 40 == 0) {  Console.WriteLine(); }
+                int horizontalPixel = pixels % 40;
 
+                Dictionary<string, int> cycleStages = _cycleValues[pixels];
 
+                char printChar = (cycleStages["during"] >= horizontalPixel - 1 && cycleStages["during"] <= horizontalPixel + 1)
+                    ? '#'
+                    : '.';
 
+                Console.Write(printChar);
             }
-            return "e";
+            return "";
         }
 
         private void StoreCycleValues()
         {
             string line;
-            int linesAmount, i, cycles = 0, value = 1;
-            
+            int value = 1;
 
             while ((line = InputFile.ReadLine()) != null)
-                _lines.Add(line);
-
-
-            linesAmount = _lines.Count;
-            for (i = 0; i < linesAmount + 2; i++)
             {
-                line = linesAmount > i ? _lines[i] : "noop";
-                cycles++;
-
-                _cycleValues.Add(cycles, value);
-
-                if (line == "noop")
+                //
+                // cycle 1
+                //
+                _cycleValues.Add(new Dictionary<string, int>()
                 {
-                    continue;
-                }
+                    {"during", value},
+                    {"end", value},
+                });
 
+                if (line == "noop") { continue; }
+
+                //
+                // add extra cycle if command is addx
+                //
+                _cycleValues.Add(new Dictionary<string, int>(){{"during", value}});
                 value += int.Parse(line.Replace("addx ", ""));
-                cycles++;
-
-                _cycleValues.Add(cycles, value);
+                _cycleValues.Last().Add("end", value);
             }
-        }
-
-        private static int ProcessCommand(int value, string command) 
-        {
-            return value + (command == "noop" ? 0 : int.Parse(command.Replace("addx ", "")));
         }
     }
 }
