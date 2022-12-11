@@ -53,6 +53,7 @@ bool runApp()
             7 => new Day_7(inputFile),
             8 => new Day_8(inputFile),
             9 => new Day_9(inputFile),
+            10 => new Day_10(inputFile),
             _ => throw new NotImplementedException(),
         };
     } 
