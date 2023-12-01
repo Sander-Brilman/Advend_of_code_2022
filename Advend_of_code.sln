@@ -3,9 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "puzzles", "Advend_of_code_1.1\puzzles.csproj", "{BC8FE889-5E4C-4A14-888B-BB1D850AD900}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Puzzels2022", "Advend_of_code_1.1\Puzzels2022.csproj", "{BC8FE889-5E4C-4A14-888B-BB1D850AD900}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuikTesting", "QuikTesting\QuikTesting.csproj", "{076A38C0-8FA8-4672-A6F0-49EFE49604B8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2022", "2022", "{D3231BA3-D60C-44EF-82F1-226EBFCD1A88}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2023", "2023", "{4FFD3283-6ECB-4795-AECE-2B0C8BA64CD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLiberary", "CommonLiberary\CommonLiberary.csproj", "{B0259EAE-3086-499D-A9D1-AD39F2F668F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzels2023", "Puzzels2023\Puzzels2023.csproj", "{04EFDEBD-AAB8-48B1-88FC-FECFFABEB13B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{D1108C5C-3ABA-426E-9680-492167FC8D07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,13 +25,25 @@ Global
 		{BC8FE889-5E4C-4A14-888B-BB1D850AD900}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC8FE889-5E4C-4A14-888B-BB1D850AD900}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC8FE889-5E4C-4A14-888B-BB1D850AD900}.Release|Any CPU.Build.0 = Release|Any CPU
-		{076A38C0-8FA8-4672-A6F0-49EFE49604B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{076A38C0-8FA8-4672-A6F0-49EFE49604B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{076A38C0-8FA8-4672-A6F0-49EFE49604B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{076A38C0-8FA8-4672-A6F0-49EFE49604B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0259EAE-3086-499D-A9D1-AD39F2F668F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0259EAE-3086-499D-A9D1-AD39F2F668F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0259EAE-3086-499D-A9D1-AD39F2F668F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0259EAE-3086-499D-A9D1-AD39F2F668F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04EFDEBD-AAB8-48B1-88FC-FECFFABEB13B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04EFDEBD-AAB8-48B1-88FC-FECFFABEB13B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04EFDEBD-AAB8-48B1-88FC-FECFFABEB13B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04EFDEBD-AAB8-48B1-88FC-FECFFABEB13B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1108C5C-3ABA-426E-9680-492167FC8D07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1108C5C-3ABA-426E-9680-492167FC8D07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1108C5C-3ABA-426E-9680-492167FC8D07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1108C5C-3ABA-426E-9680-492167FC8D07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BC8FE889-5E4C-4A14-888B-BB1D850AD900} = {D3231BA3-D60C-44EF-82F1-226EBFCD1A88}
+		{04EFDEBD-AAB8-48B1-88FC-FECFFABEB13B} = {4FFD3283-6ECB-4795-AECE-2B0C8BA64CD1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8332F14B-52E2-466C-99DE-A7FA93CA0921}
