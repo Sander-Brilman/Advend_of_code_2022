@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Puzzels2023.Solutions;
-public class Solution2() : SolutionBase(2)
+public class Solution2() : SolutionBase(2, false)
 {
     class Game
     {
         public int Id { get; set; }
 
-        public List<List<Cube>> Cubes { get; set; } = [];
+        public List<Cube> Cubes { get; set; } = [];
     }
 
     class Cube
@@ -62,11 +62,10 @@ public class Solution2() : SolutionBase(2)
             foreach (var sample in samples)
             {
                 string[] cubesFromSample = sample.Split(", ");
-                game.Cubes.Add(new(cubesFromSample.Length));
 
                 foreach (var cube in cubesFromSample)
                 {
-                    game.Cubes.Last().Add(new Cube(cube));
+                    game.Cubes.Add(new Cube(cube));
                 }
             }
 
@@ -88,18 +87,16 @@ public class Solution2() : SolutionBase(2)
         foreach (var game in games)
         {
             bool cubeExeedsLimit = game.Cubes
-                .Where(cl => cl
-                    .Any(c =>
+                .Any(c =>
+                {
+                    return c.Color switch
                     {
-                        return c.Color switch
-                        {
-                            CubeColor.Red => c.Amount > maxRedCubes,
-                            CubeColor.Green => c.Amount > maxGreenCubes,
-                            CubeColor.Blue => c.Amount > maxBlueCubes,
-                            _ => false
-                        };
-                    })
-                ).Any();
+                        CubeColor.Red => c.Amount > maxRedCubes,
+                        CubeColor.Green => c.Amount > maxGreenCubes,
+                        CubeColor.Blue => c.Amount > maxBlueCubes,
+                        _ => false
+                    };
+                });
                 
             if (cubeExeedsLimit)
             {
@@ -114,6 +111,32 @@ public class Solution2() : SolutionBase(2)
 
     public override string GetSecondSolution2()
     {
-        throw new NotImplementedException();
+        List<Game> games = GetGames();
+
+        int total = 0;
+
+        foreach (var game in games)
+        {
+            int gamePower = 0;
+            var groups = game.Cubes
+                .GroupBy(c => c.Color);
+
+            foreach (var group in groups)
+            {
+                int colorMaximum = group.MaxBy(c => c.Amount).Amount;
+
+                if (gamePower == 0)
+                {
+                    gamePower = colorMaximum;
+                    continue;
+                }
+
+                gamePower *= colorMaximum;
+            }
+
+            total += gamePower;
+        }
+
+        return total.ToString();
     }
 }
