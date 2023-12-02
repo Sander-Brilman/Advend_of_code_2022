@@ -98,16 +98,17 @@ public class Solution1() : SolutionBase(1)
 
     public override string GetSecondSolution2()
     {
-        int total = 0;
+        return "";
+        //int total = 0;
 
-            string line = _lines[i];
-            int[] numbersInLine = GetNumbersFromLineAdvances(line);
+        //    string line = _lines[i];
+        //    int[] numbersInLine = GetNumbersFromLineAdvances(line);
 
-            int fullNumber = int.Parse($"{numbersInLine.First()}{numbersInLine.Last()}");
+        //    int fullNumber = int.Parse($"{numbersInLine.First()}{numbersInLine.Last()}");
 
-            total += fullNumber;
-        }
+        //    total += fullNumber;
+        //}
 
-        return total.ToString();
+        //return total.ToString();
     }
 }
