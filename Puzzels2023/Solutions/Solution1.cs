@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Puzzels2023.Solutions;
-public class Solution1() : SolutionBase(1)
+public class Solution1(string filePath) : SolutionBase(filePath)
 {
     private static readonly string[] _numbersAsText = [
         "one",
@@ -98,17 +98,19 @@ public class Solution1() : SolutionBase(1)
 
     public override string GetSecondSolution2()
     {
-        return "";
-        //int total = 0;
+        int total = 0;
 
-        //    string line = _lines[i];
-        //    int[] numbersInLine = GetNumbersFromLineAdvances(line);
+        for (int i = 0; i < _lines.Length; i++)
+        {
 
-        //    int fullNumber = int.Parse($"{numbersInLine.First()}{numbersInLine.Last()}");
+            string line = _lines[i];
+            int[] numbersInLine = GetNumbersFromLineAdvances(line);
 
-        //    total += fullNumber;
-        //}
+            int fullNumber = int.Parse($"{numbersInLine.First()}{numbersInLine.Last()}");
 
-        //return total.ToString();
+            total += fullNumber;
+        }
+
+        return total.ToString();
     }
 }

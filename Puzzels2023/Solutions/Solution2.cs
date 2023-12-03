@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Puzzels2023.Solutions;
-public class Solution2() : SolutionBase(2, false)
+public class Solution2(string filePath) : SolutionBase(filePath)
 {
     class Game
     {
