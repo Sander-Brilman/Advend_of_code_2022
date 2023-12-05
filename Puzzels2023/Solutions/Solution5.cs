@@ -113,8 +113,8 @@ public class Solution5(string path) : SolutionBase(path)
 
         Console.WriteLine($"[{DateTime.UtcNow}] Start");
 
-        int forLength = seedRanges.Length / 2;
-        for (int i = 0; i < forLength; i += 2)
+        int forLength = seedRanges.Length;
+        for (int i = 0; i <= forLength; i += 2)
         {
             long seedStart = seedRanges[i];
             long seedRange = seedRanges[i + 1];
