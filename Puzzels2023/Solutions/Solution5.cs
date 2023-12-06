@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +16,9 @@ public class Solution5(string path) : SolutionBase(path)
 
         public long RangeLength { get; set; }
 
-        public bool IsDoneForCurrentMap { get; set; } = false;
+        public string? StartFromMapRule { get; set; }
+
+        public int OriginalSeedOffset { get; set; }
 
         public long End => Start + (RangeLength - 1);
     }
@@ -105,158 +109,203 @@ public class Solution5(string path) : SolutionBase(path)
         return source.Min().ToString();
     }
 
+
+
+    private readonly List<Source> _sources = [];
+
+    /// <summary>
+    /// returns false if it did noting returns true if it changed the source
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="mapRule"></param>
+    /// <returns></returns>
+    private bool ProcessMapRuleForSource(Source source, string mapRule)
+    {
+        long[] mapNumbers = GetNumbersFromString(mapRule);
+
+        long mapDestinationStart = mapNumbers[0];
+        long mapRangeLength = mapNumbers[2];
+
+        long mapSourceStart = mapNumbers[1];
+        long mapSourceEnd = mapSourceStart + (mapRangeLength - 1);
+
+
+        // source is completely left out 
+        if (source.End < mapSourceStart || source.Start > mapSourceEnd)
+        {
+            return false;
+        }
+
+        // source falls completely within the boundries
+        if (source.Start >= mapSourceStart && source.End <= mapSourceEnd)
+        {
+            source.Start += (mapDestinationStart - mapSourceStart);
+            return true;
+        }
+
+
+
+        // source gets cut off from the left 
+        if (source.Start < mapSourceStart && 
+            source.End >= mapSourceStart &&
+            source.End <= mapSourceEnd) 
+        {
+            long newSourceLength = mapSourceStart - source.Start;
+
+            Source newSource = new()
+            {
+                Start = source.Start,
+                RangeLength = newSourceLength,
+                StartFromMapRule = mapRule
+            };
+
+            _sources.Add(newSource);
+
+            source.Start = mapDestinationStart;
+
+            if (source.Start < 0)
+            {
+                Console.WriteLine();
+            }
+
+
+            source.RangeLength -= newSourceLength;
+
+            return true;
+        }
+
+        // source gets cut off from the right
+        if (source.Start >= mapSourceStart &&
+            source.Start <= mapSourceEnd &&
+            source.End > mapSourceEnd)
+        {
+            long newSourceLength = source.End - mapSourceEnd;
+
+            Source newSource = new()
+            {
+                Start = mapSourceEnd + 1,
+                RangeLength = newSourceLength,
+                StartFromMapRule = mapRule
+            };
+
+            _sources.Add(newSource);
+
+            source.Start += (mapDestinationStart - mapSourceStart);
+
+            if (source.Start < 0)
+            {
+                Console.WriteLine();
+            }
+
+
+            source.RangeLength -= newSourceLength;
+
+            return true;
+        }
+
+
+        // if the source is encapsulates the entire rule and has parts left out on both sides
+        if (source.Start < mapSourceStart &&
+            source.End > mapSourceEnd)
+        {
+            // left part
+            long newLeftSourceLength = mapSourceStart - source.Start;
+
+            Source newLeftSource = new()
+            {
+                Start = source.Start,
+                RangeLength = newLeftSourceLength,
+                StartFromMapRule = mapRule
+            };
+
+            _sources.Add(newLeftSource);
+
+
+            // right part
+            long newRightSourceLength = source.End - mapSourceEnd;
+
+            Source newRightSource = new()
+            {
+                Start = mapSourceEnd + 1,
+                RangeLength = newRightSourceLength,
+                StartFromMapRule = mapRule
+            };
+
+            _sources.Add(newRightSource);
+
+
+            // update original source
+            source.Start = mapDestinationStart;
+
+            if (source.Start < 0)
+            {
+                Console.WriteLine();
+            }
+
+            source.RangeLength = mapRangeLength;
+
+            return true;
+        }
+
+        throw new UnreachableException();
+    }
+
     public override string GetSecondSolution2()
     {
-        long[] seedRanges = GetFirstLineNumbers();
+        long[] seedValues = GetFirstLineNumbers();
 
-        long? minSoFar = null;
-
-        Console.WriteLine($"[{DateTime.UtcNow}] Start");
-
-        int forLength = seedRanges.Length;
-        for (int i = 0; i < forLength; i += 2)
+        for (int i = 0; i < seedValues.Length; i += 2)
         {
-            long seedStart = seedRanges[i];
-            long seedRange = seedRanges[i + 1];
-
-
-            List<Source> sources = [new Source()
+            _sources.Add(new Source()
             {
-                RangeLength = seedRange,
-                Start = seedStart,
-            }];
+                Start = seedValues[i],
+                RangeLength = seedValues[i + 1],
+            });
+        }
 
-            var maps = GetMaps();
-            foreach (var map in maps)
+
+        var maps = GetMaps();
+        foreach (var map in maps)
+        {
+
+            for (int sourceIndex = 0; sourceIndex < _sources.Count; sourceIndex++)
             {
-                foreach (Source s in sources)
-                    s.IsDoneForCurrentMap = false;
+                Source source = _sources[sourceIndex];
 
                 foreach (var mapRule in map)
                 {
-
-                    for (int sourceIndex = 0; sourceIndex < sources.Count; sourceIndex++)
+                    if (source.StartFromMapRule is not null && source.StartFromMapRule != mapRule)
                     {
-                        var source = sources[sourceIndex];
-                        if (source.IsDoneForCurrentMap) { continue; }
+                        continue;
+                    }
 
 
-                        long[] numbers = GetNumbersFromString(mapRule);
-
-                        long mapDesinationStart = numbers[0];
-                        long mapSourceStart = numbers[1];
-                        long mapRangeLength = numbers[2];
-                        long mapSourceEnd = mapSourceStart + (mapRangeLength - 1);
-
-                        if (source.End < mapSourceStart || source.Start > mapSourceEnd)
-                        {
-                            //the whole set is completely ignored, continue to next
-                            continue;
-                        }
-                        else if (source.Start >= mapSourceStart && source.End <= mapSourceEnd)
-                        {
-                            // the whole set can be incremented as a whole, continue to next set
-                            source.Start += (mapDesinationStart - mapSourceStart);
-                            source.IsDoneForCurrentMap = true;
-                            continue;
-                        }
-                        else if (source.Start < mapSourceStart && source.End > mapSourceEnd)
-                        {
-                            // create source on the front
-                            long newSetLength = mapSourceStart - source.Start;
-                            Source newSplitSourceLeft = new()
-                            {
-                                Start = source.Start,
-                                RangeLength = newSetLength,
-                            };
-
-                            sources.Add(newSplitSourceLeft);
-
-
-                            // create source on the back
-                            newSetLength = source.End - mapSourceEnd;
-                            Source newSplitSourceRight = new()
-                            {
-                                Start = mapSourceEnd + 1,
-                                RangeLength = newSetLength,
-                            };
-
-                            sources.Add(newSplitSourceRight);
+                    bool doneForThisMap = ProcessMapRuleForSource(source, mapRule);
 
 
 
-                            // update current source
-                            source.Start = mapSourceStart;
-                            source.RangeLength = mapRangeLength;
+                    source.StartFromMapRule = null;
 
-                            source.Start += (mapDesinationStart - mapSourceStart);
-                            source.IsDoneForCurrentMap = true;
-
-                            continue;
-                        }
-                        else if (source.Start < mapSourceStart)
-                        {
-                            // split on mapSourceStart
-
-                            long newSetLength = mapSourceStart - source.Start;
-
-                            Source newSplitSource = new()
-                            {
-                                Start = source.Start,
-                                RangeLength = newSetLength,
-                            };
-
-                            sources.Add(newSplitSource);
-
-                            source.Start = mapSourceStart;
-                            source.Start += (mapDesinationStart - mapSourceStart);
-
-                            source.RangeLength -= newSetLength;
-                            source.IsDoneForCurrentMap = true;
-
-                            continue;
-                        }
-                        else if (source.End < mapSourceEnd)
-                        {
-                            // split on mapSourceEnd
-
-                            long newSetLength = source.End - mapSourceEnd;
-
-                            Source newSplitSource = new()
-                            {
-                                Start = mapSourceEnd + 1,
-                                RangeLength = newSetLength,
-                            };
-
-                            sources.Add(newSplitSource);
-
-                            source.Start += (mapDesinationStart - mapSourceStart);
-                            source.RangeLength -= newSetLength;
-                            source.IsDoneForCurrentMap = true;
-
-                            continue;
-                        }
-                    }// source foreach
-
-                }// mapRule foreach
-
-            }// maps foreach
+                    if (doneForThisMap)
+                    {
+                        break;
+                    }
+                    
 
 
-            long minFromTheseSets = sources
-                .MinBy(x => x.Start)
-                !.Start;
 
-            if (minSoFar is null)
-            {
-                minSoFar = minFromTheseSets;
-                continue;
-            }
+                } // map rule loop
 
-            minSoFar = minFromTheseSets < minSoFar
-                ? minFromTheseSets : minSoFar;
-        }
 
-        return minSoFar!.ToString()!;
+            }// sources loop
+
+        }// map loop
+
+        long smallest = _sources
+            .MinBy(x => x.Start)
+            .Start;
+
+
+        return smallest.ToString();
     }
 }
