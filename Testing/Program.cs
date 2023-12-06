@@ -1,16 +1,9 @@
 ﻿
 
+var t = "38     67     76     73"
+    .Split(" ");
 
-using System.Text.RegularExpressions;
-
-string input = "000one00";
-
-string search = "one!";
-
-
-var thing = Regex.Match(input, search);
-
-Console.WriteLine(thing.Value == "");
-
-
-Console.WriteLine(thing.NextMatch());
+foreach (var i in t)
+{
+    Console.WriteLine(i.Length);
+}
