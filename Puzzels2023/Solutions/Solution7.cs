@@ -35,6 +35,7 @@ internal class Solution7(string path) : SolutionBase(path)
             });
     }
 
+
     private record Hand(HandType Type, Card[] Cards, int Bid, string AsText)
     {
         private static HandType GetHandTypeFromCards(Card[] cards, bool countJoker = false)
