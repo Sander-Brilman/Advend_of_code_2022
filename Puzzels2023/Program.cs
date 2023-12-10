@@ -53,6 +53,9 @@ do
     if (type is null)
     {
         WriteLine("this Solution does not exist yet..");
+        WriteLine();
+        Write("Again? [y/n]: ");
+
         continue;
     }
 
@@ -71,6 +74,8 @@ do
     if (puzzelSolution is null)
     {
         WriteLine("this Solution does not exist yet..");
+        WriteLine();
+        Write("Again? [y/n]: ");
         continue;
     }
 
