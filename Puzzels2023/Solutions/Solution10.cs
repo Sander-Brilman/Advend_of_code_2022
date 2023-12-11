@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -60,12 +61,11 @@ internal class Solution10(string path) : SolutionBase(path)
         return Pipe.FromChar(pipeRaw, location);
     }
 
-    private Pipe[] GetConnectedPipes(Pipe pipe)
+    private IEnumerable<Pipe> GetConnectedPipes(Pipe pipe)
     {
         return pipe.FacingLocations
             .Select(GetPipe)
-            .Where(p => p != null && ArePipesConnected(p, pipe))
-            .ToArray()!;
+            .Where(p => p != null && ArePipesConnected(p, pipe));
     }
 
     private static bool ArePipesConnected(Pipe? pipe1, Pipe? pipe2)
@@ -93,20 +93,16 @@ internal class Solution10(string path) : SolutionBase(path)
         {
             Pipe currentPipe = pipes.Last();
 
-            Pipe[] connectedPipes = GetConnectedPipes(currentPipe);
-
-            if (connectedPipes.Length == 0) { throw new Exception("pipe has no connections!"); }
-
-            Pipe[] unDiscoveredPipes = connectedPipes
+            Pipe[] connectedPipes = GetConnectedPipes(currentPipe)
                 .Where(p => pipes.Any(pp => pp.Location == p.Location) is false)
                 .ToArray();
 
-            if (unDiscoveredPipes.Length == 0)
+            if (connectedPipes.Length == 0)
             {
                 break;
             }
 
-            pipes.Add(unDiscoveredPipes.First());
+            pipes.Add(connectedPipes.First());
         }
 
         return [.. pipes];
@@ -116,10 +112,10 @@ internal class Solution10(string path) : SolutionBase(path)
     {
         for (int y = 0; y < _lines.Length; y++)
         {
-            var line = _lines[y];
-            for (int x = 0; x < line.Length; x++)
+            int lineLength = _lines[y].Length;
+            for (int x = 0; x < lineLength; x++)
             {
-                if (line[x] == 'S')
+                if (_lines[y][x] == 'S')
                 {
                     return new(x, y);
                 }
@@ -138,6 +134,61 @@ internal class Solution10(string path) : SolutionBase(path)
         return ((pipesInLoop.Length / 2)).ToString();
     }
 
+    private enum HorizontalLineDirection 
+    { 
+        Up, 
+        Down 
+    }
+
+    private static char FindReplacementForStartCharacter(Location startLocation, Pipe[] pipesInLoop)
+    {
+        Pipe[] pipesAttachedToStart = pipesInLoop
+            .Where(p => p.FacingLocations.Contains(startLocation))
+            .ToArray();
+
+        Pipe pipe1 = pipesAttachedToStart[0];
+        Pipe pipe2 = pipesAttachedToStart[1];
+
+        bool isTopConnected = pipe1.Location.Y == startLocation.Y - 1 || pipe2.Location.Y == startLocation.Y - 1;
+        bool isBottomConnected = pipe1.Location.Y == startLocation.Y + 1 || pipe2.Location.Y == startLocation.Y + 1;
+
+        bool isLeftConnected = pipe1.Location.X == startLocation.X - 1 || pipe2.Location.X == startLocation.X - 1;
+        bool isRightConnected = pipe1.Location.X == startLocation.X + 1 || pipe2.Location.X == startLocation.X + 1;
+
+        if (isTopConnected && isBottomConnected) 
+        {
+            return '|'; 
+        }
+        else if (isLeftConnected && isRightConnected)
+        {
+            return '-';
+        }
+        else if (isTopConnected && isRightConnected)
+        {
+            return 'L';
+        }
+        else if (isTopConnected && isLeftConnected)
+        {
+            return 'J';
+        }
+        else if (isBottomConnected && isRightConnected)
+        {
+            return 'F';
+        }
+        else if (isBottomConnected && isLeftConnected)
+        {
+            return '7';
+        }
+
+        throw new UnreachableException();
+    }
+
+    enum CornerDirection
+    {
+        Top,
+        Bottom,
+    }
+
     public override string GetSecondSolution2()
     {
         Location startLocation = GetStartLocation();
@@ -145,66 +196,58 @@ internal class Solution10(string path) : SolutionBase(path)
         Pipe[] pipesInLoop = GetLoopStartingFromLocation(startLocation);
 
         int totalSquaresInLoop = 0;
-
-        bool isInsideLoop = false;
-        bool pointerIsOnHorizontalLine = false;
+        int lineLength = _lines.First().Length;
+        bool isCounting = false;
 
         for (int y = 0; y < _lines.Length; y++)
         {
-            var line = _lines[y];
-
-            if (line.Contains('|') is false) { continue; }
-
-            isInsideLoop = false;
-            for (int x = 0; x < line.Length; x++)
+            for (int x = 0; x < lineLength; x++)
             {
-                Location location = new(x, y);
-                var lineChar = line[x];
+                char lineChar = _lines[y][x];
+
+                bool isPartOfMainLoop = pipesInLoop.Any(p => p.Location.X == x && p.Location.Y == y);
 
 
-                Pipe currentPipe = GetPipe(location)!;
-                Pipe? nextPotentialPipe = GetPipe(new Location(x + 1, y));
-                Pipe? previousPotentialPipe = GetPipe(new Location(x - 1, y));
-
-
-                bool currentLocationIsPartOfLoop = pipesInLoop.Any(p => p.Location == location);
-
-                bool previousPipeIsConnected = ArePipesConnected(currentPipe, previousPotentialPipe);
-                bool nextPipeIsConnected = ArePipesConnected(nextPotentialPipe, currentPipe);
-                bool isPartOfHorizontalLine = (nextPipeIsConnected || previousPipeIsConnected);
-
-
-                if (currentLocationIsPartOfLoop)
+                if (lineChar == 'S')
                 {
-                    if (lineChar == '|')
+                    lineChar = FindReplacementForStartCharacter(startLocation, pipesInLoop);
+                    _lines[y] = _lines[y].Replace('S', lineChar);
+                }
+
+                if (lineChar == '|' && isPartOfMainLoop)
+                {
+                    isCounting = !isCounting;
+                    continue;
+                }
+
+                if (lineChar == '-' && isPartOfMainLoop) { continue; }
+                
+                // other pipe parts such as corner pices
+                if (isPartOfMainLoop)
+                {
+                    bool endOfHorizontalLine = lineChar == 'J' || lineChar == '7';
+
+                    if (endOfHorizontalLine)
                     {
-                        isInsideLoop = !isInsideLoop;
+                        char startOfhorizontalLine = _lines[y]
+                            .Take(x)
+                            .Reverse()
+                            .SkipWhile(x => x == '-')
+                            .First();
 
-                        continue;
-                    }
+                        CornerDirection endDirection = lineChar == '7' ? CornerDirection.Bottom : CornerDirection.Top;
+                        CornerDirection startDirection = startOfhorizontalLine == 'F' ? CornerDirection.Bottom : CornerDirection.Top;
 
-                    if (isPartOfHorizontalLine)
-                    {
-                        int amountOfVerticalPipesBefore = line
-                            .Take(x + 1)
-                            .Where(c => c == '|')
-                            .Count();
-
-                        // end of the horizontal line
-                        if (amountOfVerticalPipesBefore > 0 && nextPipeIsConnected is false)
+                        if (endDirection != startDirection)
                         {
-                            isInsideLoop = amountOfVerticalPipesBefore % 2 == 0
-                                ? false
-                                : true;
+                            isCounting = !isCounting;
                         }
-
-                        continue;
                     }
 
                     continue;
                 }
 
-                if (isInsideLoop && currentLocationIsPartOfLoop is false)
+                if (isCounting)
                 {
                     totalSquaresInLoop++;
                 }
