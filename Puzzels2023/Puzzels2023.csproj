@@ -24,6 +24,12 @@
     <None Update="TextFiles\Puzzle10.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TextFiles\Puzzle11.example.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TextFiles\Puzzle11.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TextFiles\Puzzle2.example.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

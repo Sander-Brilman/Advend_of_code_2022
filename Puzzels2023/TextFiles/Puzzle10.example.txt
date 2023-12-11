@@ -7,3 +7,9 @@
 .|..|.|..|.
 .L--J.L--J.
 ...........
+
+van boven naar onder aan
+van onder naar boven aan
+
+boven naar boven uit
+onder naar onder uit
